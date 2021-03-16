@@ -1,0 +1,39 @@
+{
+  "name": "photobook",
+  "version": "1.0.0",
+  "description": "photobook is an image gallery where historical pictures can be stored for future purpose",
+  "main": "app.js",
+  "scripts": {
+    "start":"cross-env NODE_ENV=production node app",
+    "dev":"cross-env NODE_ENV=development nodemon app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FemiOluwadamilola/photobook.git"
+  },
+  "author": "Femi Oluwadamilola Emmanuel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FemiOluwadamilola/photobook/issues"
+  },
+  "homepage": "https://github.com/FemiOluwadamilola/photobook#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-mongo": "^4.4.0",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.6",
+    "express": "^4.17.1",
+    "express-ejs-layouts": "^2.5.0",
+    "express-session": "^1.17.1",
+    "method-override": "^3.0.0",
+    "moment": "^2.29.1",
+    "mongoose": "^5.12.0",
+    "morgan": "^1.10.0",
+    "passport": "^0.4.1",
+    "passport-google-oauth20": "^2.0.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "nodemon": "^2.0.7"
+  }
+}
