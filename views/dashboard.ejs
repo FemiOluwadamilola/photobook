@@ -1,17 +1,30 @@
 <!-- nav bar -->
 <nav id="nav-bar">
-  <h3>hello,user</h3>
+  <h3>Hello, <%=user.firstname%></h3>
   <a href="/logout" class="log-out-btn">logout</a>
 </nav>
 
 <!-- form for image upload -->
 <div class="upload-section">
-  <form action="/upload" method="POST">
-    <input type="file" name="upload" class="upload">
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" class="upload">
     <button class="btn upload-btn" type="submit">Upload Photo!!!</button>
   </form>
 </div>
 
 <div class="image-container">
  <!-- images goes here !!! -->
+  <% if(files) {%>
+    <% files.forEach(function(file){ %>
+      <div class="imageBox">
+         <% if(file.isImage) { %>
+           <img src="image/<%= file.filename %>" alt="">
+         <%} else {%>
+            <%= file.filename %>
+          <% } %>
+      </div>
+   <% }) %>
+  <% } else { %>
+    <p>No Image to display</p>
+  <% } %>
 </div>

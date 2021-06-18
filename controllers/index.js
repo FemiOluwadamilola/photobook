@@ -2,6 +2,7 @@ const passport = require('passport');
 const bcrypt = require('bcryptjs');
 const User = require('../model/user');
 
+
 const Registration = (req,res) => {
   try{
     const {firstname,surname,email,password,confirm_password} = req.body;
@@ -33,7 +34,8 @@ const Registration = (req,res) => {
       User.findOne({email})
       .then(user => {
          if(user){
-            console.log('Email already registered')
+            // console.log('Email already registered')
+            error.push({msg:'Email already registered'})
          }else{
             const newUser = new User({
                firstname,
@@ -70,7 +72,39 @@ const Login = (req,res,next) => {
   })(req,res,next);
 }
 
+const forgetPassword = (req,res) => {
+  let error = [];
+  const {email} = req.body;
+  try{
+    User.findOne({email}).then((user) => {
+       if(!user){
+        // error.push({msg:'Invalid Email Address'});
+        console.log({msg:'Invalid Email Address'});
+       }else{
+        
+        res.redirect('/reset')
+       }
+    }).catch((err) => {
+       throw err;
+    })
+  }catch(err){
+    console.log(err)
+  }
+}
+
+// const reset = (req,res) => {
+//   const {password, confirm_password} = req.body;
+
+// }
+
+const imageUpload = (req,res) => {
+//  res.json({file:req.file})
+ res.redirect('/dashboard')
+}
+
 module.exports = {
     Registration,
-    Login
+    Login,
+    forgetPassword,
+    imageUpload
 }
