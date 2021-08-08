@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const connection = require('./config/db');
-const {ensureAuthenticated} = require('./config/auth');
 const flash = require('connect-flash');
 const session = require('express-session');
 const expressLayouts = require('express-ejs-layouts');
@@ -25,15 +24,6 @@ require('dotenv').config();
  //db connnection
 connection();
 
-// variable for gridfsStream
-let gfs;
-
-const conn = mongoose.connection;
-conn.once("open", () => {
- gfs = Grid(conn.db, mongoose.mongo);
- gfs.collection('uploads')
-})
-
 
 // EJS
 app.use(expressLayouts);
@@ -44,7 +34,8 @@ app.set('view engine','ejs');
 app.use(express.urlencoded({extended:false}));
 app.use(express.json());
 app.use(methodOverride('_method'));
-app.use(express.static(path.join(__dirname,'public')));
+app.use(express.static(path.join(__dirname,'/public')));
+app.use(express.static(path.join(__dirname,'imageUploads')));
 
 // express-session
 app.use(session({
@@ -70,60 +61,6 @@ app.use((req,res,next) => {
 // ROUTER MIDDLEWARE
 app.use('/', require('./routes/route'));
 
-//media route
-app.get('/dashboard',ensureAuthenticated,(req,res) => {
-  gfs.files.find().toArray((err, files) => {
-    if(!files || files.length === 0){
-      res.render('dashboard',{
-        title:'dashboard',
-        user:req.user,
-        files:false
-      })
-    }else{
-      files.map(file => {
-        if(file.contentType === "image/jpeg" || file.contentType === "image/png"){
-           file.isImage = true;
-        }else{
-           file.isImage = false;
-        }
-      });
-      
-      res.render('dashboard',{
-        title:'dashboard',
-        user:req.user,
-        files:files,
-      })
-    }
-  })
-})
-
-// app.get('/images', (req,res) => {
-//   gfs.files.find().toArray((err,files){
-//     if(!files || files.length === 0){
-
-//     }
-//   })
-// })
-
-// display single image
-app.get('/image/:filename', (req,res) => {
-  gfs.files.findOne({filename:req.params.filename}, (err,file) => {
-    if(!file || file.length === 0){
-      return res.status(404).json({
-         err:"No file exists"
-      });
-    }
-   
-    if(file.contentType === 'image/jpeg' || file.contentType === 'image/jpeg'){
-      const readstream = gfs.createReadStream(file.filename);
-      readstream.pipe(res);
-    }else{
-      return res.status(404).json({
-        err:"Not an image"
-     });
-    }
-  })
-})
 
 // ENV VARIABLE
 const PORT = process.env.PORT || 5000;

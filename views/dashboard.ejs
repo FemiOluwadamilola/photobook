@@ -7,24 +7,16 @@
 <!-- form for image upload -->
 <div class="upload-section">
   <form action="/upload" method="POST" enctype="multipart/form-data">
-    <input type="file" name="file" class="upload">
+    <input type="file" name="image" class="upload">
     <button class="btn upload-btn" type="submit">Upload Photo!!!</button>
   </form>
 </div>
-
+ <%- include('./partials/messages')%>
 <div class="image-container">
  <!-- images goes here !!! -->
-  <% if(files) {%>
-    <% files.forEach(function(file){ %>
-      <div class="imageBox">
-         <% if(file.isImage) { %>
-           <img src="image/<%= file.filename %>" alt="">
-         <%} else {%>
-            <%= file.filename %>
-          <% } %>
-      </div>
-   <% }) %>
-  <% } else { %>
-    <p>No Image to display</p>
-  <% } %>
+<%user.images.forEach(function(image){%>
+  <div class="imageBox"> 
+     <img src="../imageUploads/<%=image%>" alt="<%=image%>"/>
+  </div>
+<%})%>
 </div>

@@ -1,9 +1,9 @@
 <section id="login-form-container">
     <div class="overley">
       <div class="form-container">
-        <form action="/reset" method="POST">
+        <form action="/reset" method="PUT">
             <h3>Reset Password</h3>
-            <%- include('./partials/messages'); %>
+            <%- include('./partials/messages')%>
             <div class="form-control">
              <label for="password">New password:</label>
               <input name="password" type="password" required>

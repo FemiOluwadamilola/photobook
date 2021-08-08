@@ -4,12 +4,13 @@ const URL = process.env.MONGODB_URL;
 
  const connection = async () => {
     try{
-    const connectionParams = {
+    const options = {
         useNewUrlParser:true, 
-        useUnifiedTopology:true
+        useUnifiedTopology:true,
+        usefindAndModify:false
     }
-    await mongoose.connect(URL,connectionParams)
-      console.log('mongodb connected')
+    await mongoose.connect(URL,options)
+     console.log('mongodb connected')
     }catch(err){
       console.log('mongodb not found!!!')
     }

@@ -1,28 +1,28 @@
+const path = require('path');
 const passport = require('passport');
 const bcrypt = require('bcryptjs');
 const User = require('../model/user');
+const multer = require('multer');
+const storage = require('../config/upload');
 
 
 const Registration = (req,res) => {
   try{
     const {firstname,surname,email,password,confirm_password} = req.body;
-  let error = [];
+  let errors = [];
   if(!firstname || !surname || !email || !password || !confirm_password){
-     error.push({msg:'Please fill all fields'});
-    //  console.log('please fill all fields')
+     errors.push({msg:'Please fill all fields'});
   }
 
   if(password !== confirm_password){
-      error.push({msg:'Passwords do not match'});
-      // console.log('passwords do not match');
+      errors.push({msg:'Passwords do not match'});
   };
 
   if(password.length < 6){
-    error.push({msg:'password should be at least 6 character long!'})
-    // console.log('password should be at least 6 character long!')
+    errors.push({msg:'password should be at least 6 character long!'})
   }
 
-  if(error.length > 0){
+  if(errors.length > 0){
     res.render('reg',{
       firstname,
       surname,
@@ -34,8 +34,8 @@ const Registration = (req,res) => {
       User.findOne({email})
       .then(user => {
          if(user){
-            // console.log('Email already registered')
-            error.push({msg:'Email already registered'})
+            errors.push({msg:'Email already registered'})
+            // console.log('Email already registered');
          }else{
             const newUser = new User({
                firstname,
@@ -48,6 +48,7 @@ const Registration = (req,res) => {
               
                 // set password to hash
               newUser.password = hash;
+
 
              newUser.save().then(user => {
                 req.flash('success_msg','You are now registered and can log in');
@@ -73,16 +74,17 @@ const Login = (req,res,next) => {
 }
 
 const forgetPassword = (req,res) => {
-  let error = [];
-  const {email} = req.body;
   try{
+    let errors = [];
+    const {email} = req.body;
     User.findOne({email}).then((user) => {
        if(!user){
-        // error.push({msg:'Invalid Email Address'});
-        console.log({msg:'Invalid Email Address'});
+        errors.push({msg:'Oops sorry this email does not exist on our database!!!'});
+        // console.log('Oops sorry this email does not exist on our database!!!')
        }else{
-        
-        res.redirect('/reset')
+        // res.send(user._id);
+        console.log(user._id);
+        res.redirect(`/reset?_id=${user._id}`);
        }
     }).catch((err) => {
        throw err;
@@ -92,19 +94,92 @@ const forgetPassword = (req,res) => {
   }
 }
 
-// const reset = (req,res) => {
-//   const {password, confirm_password} = req.body;
+const resetPassword = (req,res) => {
+  try{
+   const {_id} = req.params;
+   const {password,confirm_password} = req.body;
+   let errors = [];
 
-// }
+   if(password === confirm_password){
+    res.render('reset',{
+      password,
+      confirm_password
+    })
+     console.log('Oops passwords does not match');
+   }else{
+     User.findById({_id}).then((user) => {
+       if(!user){
+         res.redirect('/forgetPassword');
+       }else{
+         const resetUserPassword = new User({
+           password
+         })
+         bcrypt.genSalt(10,(err,salt) => bcrypt.hash(resetUserPassword.password, salt,(err, hash) => {
+          if(err) throw err
+        
+          // set password to hash
+          resetUserPassword.password = hash;
+
+          resetUserPassword.save().then(user => {
+          req.flash('success_msg','Password reset Successfully');
+          res.redirect('/login')
+       })
+       .catch(err => console.log(err));
+      }))
+     }
+     })
+   }
+  }catch(err){
+    console.log(err)
+  }
+}
+
 
 const imageUpload = (req,res) => {
-//  res.json({file:req.file})
- res.redirect('/dashboard')
+  // const {_id} = req.user;
+  try{
+    let errors = [];
+    const imageUpload = multer({storage,
+    fileFilter:(req,file, cb) => {
+      const ext = path.extname(file.originalname);
+      if(ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== 'jpeg'){
+        // errors.push({msg:'Oops sorry only images allowed..'})
+        console.log({msg:'Oops sorry only images allowed..'})
+      }else{
+        cb(null, true)
+      }
+    }
+    }).single('image');
+
+    
+    imageUpload(req,res, (err) => {
+      if(err){
+        console.log('Something went wrong')
+      }else{
+        const userProfileId = req.user._id; 
+         User.findOneAndUpdate(
+        {_id:userProfileId},
+        {$push:{images:req.file.filename}},
+        function(error,success){
+          if(error){
+            console.log(error)
+          }else{
+            console.log('image upload successfully...')
+            res.redirect('/dashboard')
+          }
+        }
+        );
+      }
+    })
+  }catch(error){
+   console.log(error)
+  }
 }
 
 module.exports = {
     Registration,
     Login,
     forgetPassword,
-    imageUpload
+    imageUpload,
+    resetPassword
 }

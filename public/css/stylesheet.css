@@ -291,8 +291,8 @@ input[type="password"] {
 }
 
 .imageBox {
-  width: 350px;
-  height: 350px;
+  width: 250px;
+  height: 250px;
   padding: 1rem;
   margin: 0.5rem;
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.7);
